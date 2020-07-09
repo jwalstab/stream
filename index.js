@@ -84,7 +84,7 @@ app.get('/video/:name', function (req, res) {
 
 app.get('/listfiles', function (req, res) {
     var fileNames = [];
-    fs.readdir('assets/', (err, files) => {
+    fs.readdir('/public/assets/', (err, files) => {
         files.forEach(file => {
             fileNames.push(file);
         });
