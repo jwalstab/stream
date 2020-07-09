@@ -52,7 +52,7 @@ app.get('/uploadform', (req, res) => {
 
 
 app.get('/video/:name', function (req, res) {
-    const path = 'public/assets/' + req.params.name + '.mp4'
+    const path = '/assets/' + req.params.name + '.mp4'
     const stat = fs.statSync(path)
     const fileSize = stat.size
     const range = req.headers.range
