@@ -2,6 +2,7 @@ const express = require('express');
 var expressLayouts = require('express-ejs-layouts');
 const app = express();
 const path = require('path');
+const fs = require('fs');
 const multer = require('multer');
 const logger = require('morgan');
 const serveIndex = require('serve-index')
@@ -22,18 +23,26 @@ app.use(logger('tiny'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use(express.static(path.join(__dirname,'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 app.set('view engine', 'ejs');
 app.use(expressLayouts);
 
-app.use('/fileServ', express.static('public'), serveIndex('public', {'icons': true}));
+app.use('/fileServ', express.static('public'), serveIndex('public', { 'icons': true }));
 
-app.get('/', function(req,res) {
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log('Server is up and running on port ', port);
+});
+
+
+
+
+app.get('/', function (req, res) {
     return res.send("Main GET return")
 })
 
-app.post('/testUpload', upload.single('file'), function(req,res) {
-    console.log('storage location is ', req.hostname +'/' + req.file.path);
+app.post('/testUpload', upload.single('file'), function (req, res) {
+    console.log('storage location is ', req.hostname + '/' + req.file.path);
     return res.send(req.file);
 })
 
@@ -41,11 +50,47 @@ app.get('/uploadform', (req, res) => {
     res.render('upload');
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.log('Server is up and running on port ', port);
+
+app.get('/video/:name', function (req, res) {
+    const path = 'assets/' + req.params.name + '.mp4'
+    const stat = fs.statSync(path)
+    const fileSize = stat.size
+    const range = req.headers.range
+    if (range) {
+        const parts = range.replace(/bytes=/, "").split("-")
+        const start = parseInt(parts[0], 10)
+        const end = parts[1]
+            ? parseInt(parts[1], 10)
+            : fileSize - 1
+        const chunksize = (end - start) + 1
+        const file = fs.createReadStream(path, { start, end })
+        const head = {
+            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+            'Accept-Ranges': 'bytes',
+            'Content-Length': chunksize,
+            'Content-Type': 'video/mp4',
+        }
+        res.writeHead(206, head);
+        file.pipe(res);
+    } else {
+        const head = {
+            'Content-Length': fileSize,
+            'Content-Type': 'video/mp4',
+        }
+        res.writeHead(200, head)
+        fs.createReadStream(path).pipe(res)
+    }
 });
 
+app.get('/listfiles', function (req, res) {
+    var fileNames = [];
+    fs.readdir('assets/', (err, files) => {
+        files.forEach(file => {
+            fileNames.push(file);
+        });
+        res.send(fileNames);
+    });
+});
 
 
 
