@@ -9,14 +9,16 @@ const serveIndex = require('serve-index')
 
 var storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './public/uploads')
+        cb(null, './public/assets')
     },
     filename: (req, file, cb) => {
-        cb(null, /*file.fieldname + '-' +*/ Date.now() + "___" + file.originalname); //+ path.extname(file.originalname))
+        //cb(null, /*file.fieldname + '-' +*/ Date.now() + "___" + file.originalname); //+ path.extname(file.originalname))
+        console.log(file.originalname);
+        cb(null, file.originalname);
     }
 });
 
-const upload = multer({ storage: storage });
+const mUpload = multer({ storage: storage });
 //const upload = multer({dest: 'uploads/'});
 
 app.use(logger('tiny'));
@@ -41,7 +43,7 @@ app.get('/', function (req, res) {
     return res.send("Main GET return")
 })
 
-app.post('/testUpload', upload.single('file'), function (req, res) {
+app.post('/testUpload', mUpload.single('file'), function (req, res) {
     console.log('storage location is ', req.hostname + '/' + req.file.path);
     return res.send(req.file);
 })
@@ -52,7 +54,8 @@ app.get('/uploadform', (req, res) => {
 
 
 app.get('/video/:name', function (req, res) {
-    const path = 'public/assets/' + req.params.name + '.mp4'
+    //const path = 'public/assets/' + req.params.name + '.mp4'
+    const path = 'public/assets/' + req.params.name;
     const stat = fs.statSync(path)
     const fileSize = stat.size
     const range = req.headers.range
@@ -82,9 +85,14 @@ app.get('/video/:name', function (req, res) {
     }
 });
 
-app.get('/listfiles', function (req, res) {
+app.get('/getmovielist', function (req, res) {
     var fileNames = [];
-    fs.readdir('/public/assets/', (err, files) => {
+    fs.readdir('public/assets/', (err, files) => {
+        if (files === undefined){
+            console.log("files is undefined");
+            res.send("ERROR files empty");
+            return;
+        };
         files.forEach(file => {
             fileNames.push(file);
         });

@@ -9,7 +9,32 @@
 </div>
 </div>
 
-<video id="videoPlayer" controls>
-  <source src="http://164.90.186.213/video/sample" type="video/mp4">
+<video id="vp" controls>
+  <!-- <source src="http://164.90.186.213/video/sample" type="video/mp4"> -->
+  <source id="vs" src="" type="video/mp4">
 </video>
+
+<div id="list">
+
+</div>
+
+<table id="movietable">
+  <tr>
+    <th>Bla</th>
+    <th>bla</th>
+  </tr>
+</table>
+
+<script>
+  function ChangeMovie(title){
+    //console.log("CLICKED");
+		var vs = document.getElementById('vs');
+    vs.setAttribute('src', '/video/' + title);
+    var vp = document.getElementById('vp');
+    vp.load();
+    vp.play();
+	}
+</script>
+
+
 
