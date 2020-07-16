@@ -7,9 +7,12 @@ const multer = require('multer');
 const logger = require('morgan');
 const serveIndex = require('serve-index')
 
+let fileDirectoryPath = "../streamfiles";
+
 var storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, './public/assets')
+        //cb(null, './public/assets')
+        cb(null, fileDirectoryPath);
     },
     filename: (req, file, cb) => {
         //cb(null, /*file.fieldname + '-' +*/ Date.now() + "___" + file.originalname); //+ path.extname(file.originalname))
@@ -55,7 +58,7 @@ app.post('/testUpload', mUpload.single('file'), function (req, res) {
 })
 
 app.get('/delete/:file', (req,res) =>{
-    fs.unlink('public/assets/' + req.params.file, (err) => {
+    fs.unlink(fileDirectoryPath + '/' + req.params.file, (err) => {
         if (err){
             res.send("ERROR");
             console.log(" DELTE ERR: " + err);
@@ -74,7 +77,7 @@ app.get('/uploadform', (req, res) => {
 
 app.get('/video/:name', function (req, res) {
     //const path = 'public/assets/' + req.params.name + '.mp4'
-    const path = 'public/assets/' + req.params.name;
+    const path = fileDirectoryPath + '/' + req.params.name;
     const stat = fs.statSync(path)
     const fileSize = stat.size
     const range = req.headers.range
@@ -106,7 +109,7 @@ app.get('/video/:name', function (req, res) {
 
 app.get('/getmovielist', function (req, res) {
     var fileNames = [];
-    fs.readdir('public/assets/', (err, files) => {
+    fs.readdir(fileDirectoryPath, (err, files) => {
         if (files === undefined){
             console.log("files is undefined");
             res.send("ERROR files empty");
