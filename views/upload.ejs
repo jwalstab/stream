@@ -81,10 +81,13 @@ $(document).ready(function() {
 
 		var formData = new FormData($('form')[0]);
 
+    let filePath = document.getElementById('media').value;
+    let lastSlashIndex = filePath.lastIndexOf("\\");
+    let fileName = filePath.substring(lastSlashIndex + 1);
+
 		$.ajax({
 			xhr : function() {
 				var xhr = new window.XMLHttpRequest();
-
 				xhr.upload.addEventListener('progress', function(e) {
 
 					if (e.lengthComputable) {
@@ -95,7 +98,10 @@ $(document).ready(function() {
 
 						var percent = Math.round((e.loaded / e.total) * 100);
 
-						$('#progressBar').attr('aria-valuenow', percent).css('width', percent + '%').text(percent + '%');
+            $('#progressBar').attr('aria-valuenow', percent).css('width', percent + '%').text(percent + '%');
+            if (percent == 100){
+              $('#progressBar').attr('aria-valuenow', percent).css('width', percent + '%').text('Succesfully uploaded: ' + fileName);
+            }
 
 					}
 
@@ -109,8 +115,8 @@ $(document).ready(function() {
 			processData : false,
 			contentType : false,
 			success : function() {
-        console.log(formData);
-        alert('File uploaded!');
+        AddMovie(fileName);
+        //alert('File uploaded!');
 			}
 		});
 

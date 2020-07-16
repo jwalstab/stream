@@ -43,7 +43,7 @@ app.listen(port, () => {
 
 
 app.get('/', function (req, res) {
-    return res.send("Main GET return")
+    res.render('upload');
 })
 
 app.post('/testUpload', mUpload.single('file'), function (req, res) {
