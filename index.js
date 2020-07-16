@@ -45,7 +45,26 @@ app.get('/', function (req, res) {
 
 app.post('/testUpload', mUpload.single('file'), function (req, res) {
     console.log('storage location is ', req.hostname + '/' + req.file.path);
-    return res.send(req.file);
+    res.end();
+    //return res.s
+    
+    
+    
+    
+    //end(req.file);
+})
+
+app.get('/delete/:file', (req,res) =>{
+    fs.unlink('public/assets/' + req.params.file, (err) => {
+        if (err){
+            res.send("ERROR");
+            console.log(" DELTE ERR: " + err);
+        }
+        else{
+            res.send("OK!");
+        }
+    });
+    
 })
 
 app.get('/uploadform', (req, res) => {
@@ -99,16 +118,3 @@ app.get('/getmovielist', function (req, res) {
         res.send(fileNames);
     });
 });
-
-
-
-
-
-
-
-
-
-
-//const debug = require('debug')('myapp:server');
-//if end point is /users/, use the router.
-//app.use('/users', userRouter);

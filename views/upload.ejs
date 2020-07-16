@@ -33,7 +33,91 @@
     var vp = document.getElementById('vp');
     vp.load();
     vp.play();
-	}
+  }
+  
+  function DeleteMovie(title,row){
+    fetch('/delete/' + title)
+    //.then(response => response.json())
+    .then(data => {
+      console.log(data.statusText);
+      if (data.statusText == "OK"){
+        row.remove();
+      }
+    });
+  }
+  
+  function AddMovie(title){
+    var myTable = document.getElementById('movietable');
+    var newRow = myTable.insertRow();
+    var titleCell = newRow.insertCell(0);
+    titleCell.innerHTML = '<button>'+ title + '</button>'
+    titleCell.addEventListener('click', function () {
+        ChangeMovie(title);
+    });
+    var deleteCell = newRow.insertCell(1);
+    deleteCell.innerHTML = '<button> DELETE </button>'
+    deleteCell.addEventListener('click', function () {
+      var result = DeleteMovie(title, deleteCell.parentNode);
+    });
+  }
+
+  function loadMovies() {
+    
+    fetch('/getmovielist')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            data.forEach(title => {
+              AddMovie(title);
+            });
+        });
+}
+
+$(document).ready(function() {
+
+	$('form').on('submit', function(event) {
+
+		event.preventDefault();
+
+		var formData = new FormData($('form')[0]);
+
+		$.ajax({
+			xhr : function() {
+				var xhr = new window.XMLHttpRequest();
+
+				xhr.upload.addEventListener('progress', function(e) {
+
+					if (e.lengthComputable) {
+
+						console.log('Bytes Loaded: ' + e.loaded);
+						console.log('Total Size: ' + e.total);
+						console.log('Percentage Uploaded: ' + (e.loaded / e.total))
+
+						var percent = Math.round((e.loaded / e.total) * 100);
+
+						$('#progressBar').attr('aria-valuenow', percent).css('width', percent + '%').text(percent + '%');
+
+					}
+
+				});
+
+				return xhr;
+			},
+			type : 'POST',
+			url : '/testUpload',
+			data : formData,
+			processData : false,
+			contentType : false,
+			success : function() {
+        console.log(formData);
+        alert('File uploaded!');
+			}
+		});
+
+	});
+
+});
+
 </script>
 
 
